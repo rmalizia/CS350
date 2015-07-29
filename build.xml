@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<project name="Silver-5" default="main" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:jacoco="antlib:org.jacoco.ant">
+
+	    <property name="src.dir"     value="src"/>
+
+	    <property name="build.dir"   value="build"/>
+	    <property name="classes.dir" value="${build.dir}/classes"/>
+	    <property name="jar.dir"     value="${build.dir}/jar"/>
+
+	    <property name="main-class"  value="edu.odu.cs.cs350.silver5.CSClass"/>
+		
+		<property name="lib.dir"     value="third_libs"/>
+		<property name="report.dir"     value="${build.dir}/reports"/>
+		<property name="Testreport.dir"     value="${build.dir}/reports/JUnit"/>
+	    <property name="javadoc.dir"     value="${build.dir}/reports/javadoc"/>
+
+	  <property name="ivy.install.version" value="2.3.0"/>
+	  <property name="ivy.jar.dir" value="${basedir}/ivy"/>
+	  <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+
+<target name="download-ivy" unless="skip.download">
+	    <mkdir dir="${ivy.jar.dir}"/>
+	    <echo message="installing ivy..."/>
+	    <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" 
+	     dest="${ivy.jar.file}" skipexisting="true"/>
+</target>
+
+<target name="install-ivy" depends="download-ivy" 
+	      description="--> install ivy">
+	    <path id="ivy.lib.path">
+	      <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+	    </path>
+	    <taskdef resource="org/apache/ivy/ant/antlib.xml" 
+	         uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+ </target>
+	
+<target name="resolve-ivy" depends="install-ivy">
+	    <ivy:resolve/>
+	    <ivy:cachepath pathid="ivy.path" />
+</target>
+
+
+ <target name="clean">
+	        <delete dir="${build.dir}"/>
+ </target>
+
+<target name="compile" depends="resolve-ivy">
+	        <mkdir dir="${classes.dir}"/>
+			<mkdir dir="${Testreport.dir}"/>
+			<mkdir dir="${javadoc.dir}"/>
+	        <javac includeantruntime = "false" debug ="on" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="ivy.path"/>
+	  <javadoc
+	           destdir="${javadoc.dir}"
+	           author="true"
+	           version="true"
+	           use="true"
+	  		   classpathref="ivy.path"
+	           windowtitle="Silver-5">
+
+	    <fileset dir="src" defaultexcludes="yes">
+	      <include name="**/*.java"/>
+	      <exclude name="**/Test*.java"/>
+	    </fileset>
+	  </javadoc>
+	
+</target>
+	
+<target name="pmd" depends="resolve-ivy" description="run PMD.">
+	  	<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"
+	             classpathref="ivy.path"/>
+	    <mkdir dir="target/reports/pmd"/>
+	    <pmd failonerror="false">
+	      <ruleset>.ruleset</ruleset> <!-- same config used in Eclipse PMD plugin -->
+	      <formatter type="xml" toFile="${report.dir}/pmd.xml"/>
+	      <fileset dir="src/main/java">
+	        <include name="**/*.java"/>
+	      </fileset>
+	      <classpath refid="ivy.path"/>
+	    </pmd>
+	 </target>
+	  
+
+<target name="jar" depends="compile, unittests, pmd">
+	        <mkdir dir="${jar.dir}"/>
+	        <jar destfile="${jar.dir}/CSClass.jar" basedir="${classes.dir}">
+	            <manifest>
+	                <attribute name="Main-Class" value="${main-class}"/>
+	            </manifest>
+	        </jar>
+</target>
+
+<target name="unittests" depends="compile">
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath>
+			   <path location="${jar.dir}/CSClass.jar"/>
+			   <path refid="ivy.path"/>
+		</classpath>
+	    </taskdef>
+	<jacoco:coverage destfile="build/jacoco.exec" >
+	 <junit printsummary="yes" haltonfailure="no" fork="yes" forkmode="perTest" >
+	 <classpath>
+	 		<path refid="ivy.path"/>
+	 		<pathelement location="${classes.dir}"/>
+	  </classpath>
+	  <formatter type="xml"/>
+	   <batchtest todir="${Testreport.dir}">
+	        <fileset dir="${classes.dir}">
+	          <include name="**/*Test*.class"/>
+	          <exclude name="**/*$*.class"/>
+	        </fileset>
+	      </batchtest>
+	    </junit>
+	</jacoco:coverage>
+	
+</target>
+	
+
+<target name="run" depends="jar">
+	        <java fork="true" classname="${main-class}">
+	    <classpath>
+	            <path refid="ivy.path"/>
+	            <path location="${jar.dir}/CSClass.jar"/>
+	        </classpath>
+	        	</java>
+</target>
+
+<target name="clean-build" depends="clean,jar"/>
+
+<target name="main" depends="clean,run"/>
+
+</project>

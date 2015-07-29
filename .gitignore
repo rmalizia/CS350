@@ -1,0 +1,13 @@
+/bin/
+/third_libs/
+/junit-4.11.jar
+/tika-core-1.7.jar
+/build/
+/categorization-trainingData-1.0.jar
+/extract-wordlists-4.2.jar
+/tika-parsers-1.7.jar
+/weka-stable-3.6.12.jar
+/hamcrest-core-1.3.jar
+/target/
+/src/
+/ivy/

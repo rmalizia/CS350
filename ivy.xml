@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ivy-module version="2.0">
+  <info organisation="edu.odu.cs.cs350.silver5"
+        module="mymodule"
+        />
+ <dependencies>
+    <dependency org="org.apache.tika" name="tika-core" rev="1.7"/>
+	<dependency org="org.apache.tika" name="tika-parsers" rev="1.7"/>
+	<dependency org="nz.ac.waikato.cms.weka" name="weka-stable" rev="3.6.6"/>
+    <dependency org="junit" name="junit" rev="4.11"/>
+	<dependency org="edu.odu.cs.extract" name="extract-wordlists" rev="4.2"/>
+	<dependency org="edu.odu.cs.cs350" name="categorization-trainingData" rev="1.0"/>
+    <dependency org="net.sourceforge.pmd" name="pmd-java" rev="5.2.3"/>
+	<dependency org="com.google.code.findbugs" name="findbugs" rev="3.0.0"/>
+    <dependency org="org.jacoco" name="org.jacoco.ant" rev="0.7.0.201403182114"/>
+  </dependencies>
+
+</ivy-module>
